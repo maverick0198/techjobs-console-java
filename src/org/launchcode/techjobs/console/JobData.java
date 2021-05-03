@@ -7,9 +7,7 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by LaunchCode
@@ -28,6 +26,8 @@ public class JobData {
      * @param field The column to retrieve values from
      * @return List of all of the values of the given field
      */
+
+
     public static ArrayList<String> findAll(String field) {
 
         // load data, if not already loaded
@@ -51,7 +51,19 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
-        return allJobs;
+        ArrayList<HashMap<String, String>> copyOfAllJobs = new ArrayList<>();
+
+        /**
+         * In order to create a deep copy of allJobs so that none of the Hashmaps contained within our original
+         * allJobs can be accessed or altered we use the block of code below to iterate through allJobs and make
+         * individual clones of each and every hashmap contained in our ArrayList. -Chris
+         */
+        Iterator<HashMap<String,String>> iterator = allJobs.iterator();
+        while(iterator.hasNext()){
+            copyOfAllJobs.add((HashMap<String, String>) iterator.next().clone());
+        }
+
+        return copyOfAllJobs;
     }
 
     /**
@@ -74,9 +86,31 @@ public class JobData {
 
         for (HashMap<String, String> row : allJobs) {
 
-            String aValue = row.get(column);
+            String aValue = row.get(column).toUpperCase();
 
             if (aValue.contains(value)) {
+                jobs.add(row);
+            }
+        }
+
+        return jobs;
+    }
+
+    /** Chris' method findByValue:
+     *
+     * @param value This is the Value of the search term entered by the user for us to search for.
+     * @return An ArrayList filled only with the HashMaps of jobs containing the search term.
+     */
+    public static ArrayList<HashMap<String, String>> findByValue(String value) {
+
+        // load data, if not already loaded
+        loadData();
+
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+
+        for (HashMap<String, String> row : allJobs) {
+
+            if (row.values().toString().toUpperCase().contains(value)){//Had to convert .toString() or else the search was too strict.
                 jobs.add(row);
             }
         }
